@@ -7,12 +7,14 @@ import {
     PrivateKey,
     PrivateKeyVariants,
 } from "@aptos-labs/ts-sdk"
+import * as fs from 'fs';
 // import { ChatAnthropic } from "@langchain/anthropic"
 import { ChatOpenAI } from "@langchain/openai"
 import { HumanMessage } from "@langchain/core/messages"
 import { MemorySaver } from "@langchain/langgraph"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
 import { AgentRuntime, LocalSigner, createAptosTools } from "move-agent-kit"
+import OpenAI from "openai";
 
 
 export async function chatWithChain(msg: string): Promise<string> {
@@ -84,6 +86,7 @@ export async function chatWithChain(msg: string): Promise<string> {
     }
 }
 
+// langchain
 export async function chatWithAI(msg: string): Promise<string> {
   console.log("chatWithAI msg: " + msg);
   let response = "";
@@ -104,3 +107,35 @@ export async function chatWithAI(msg: string): Promise<string> {
       return response;
     }
   }
+
+// native openai
+export async function chatWithOpenAI(msg: string): Promise<string> {
+  console.log("chatWithOpenAI image msg: " + msg);
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
+  const imagePath = 'sssss.png';
+  const base64Image = fs.readFileSync(imagePath).toString('base64');
+  // console.log("chatWithOpenAI image base64Image: " + base64Image);
+
+  const response = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{
+      role: "user",
+      content: [
+        { type: "text", text: "Describe the content of this image" },
+        {
+          type: "image_url",
+          image_url: {
+            url: `data:image/jpeg;base64,${base64Image}`
+          }
+        }
+      ]
+    }],
+    max_tokens: 1000
+  });
+
+  const rrr = response.choices[0].message.content as string;
+  console.log(rrr);
+  return rrr;
+}

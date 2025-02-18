@@ -1,6 +1,6 @@
 import express from "express";
 import { AgentServer } from "./index.ts";
-import { chatWithAI, chatWithChain } from "./chat.ts";
+import { chatWithAI, chatWithChain, chatWithOpenAI } from "./chat.ts";
 // import { Scraper } from "agent-twitter-client";
 // import { TwitterApi } from "twitter-api-v2";
 
@@ -82,7 +82,7 @@ export class Routes {
             msg
         } = req.body;
         console.log(" handle chat.");
-        let answer = await chatWithAI("BTC is Good");
+        let answer = await chatWithOpenAI("BTC is Good");
         console.log(" handle chat.ans: " + answer);
 
         if (!msg) {
