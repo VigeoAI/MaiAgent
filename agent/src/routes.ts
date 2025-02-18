@@ -1,6 +1,6 @@
 import express from "express";
 import { AgentServer } from "./index.ts";
-import { chatWithChain } from "./chat.ts";
+import { chatWithAI, chatWithChain } from "./chat.ts";
 // import { Scraper } from "agent-twitter-client";
 // import { TwitterApi } from "twitter-api-v2";
 
@@ -82,7 +82,8 @@ export class Routes {
             msg
         } = req.body;
         console.log(" handle chat.");
-        let answer = await chatWithChain("BTC is Good");
+        let answer = await chatWithAI("BTC is Good");
+        console.log(" handle chat.ans: " + answer);
 
         if (!msg) {
             throw new ApiError(400, "Missing required fields");

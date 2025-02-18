@@ -7,8 +7,8 @@ import {
     PrivateKey,
     PrivateKeyVariants,
 } from "@aptos-labs/ts-sdk"
-import { ChatAnthropic } from "@langchain/anthropic"
-//import { ChatOpenAI } from "@langchain/openai"
+// import { ChatAnthropic } from "@langchain/anthropic"
+import { ChatOpenAI } from "@langchain/openai"
 import { HumanMessage } from "@langchain/core/messages"
 import { MemorySaver } from "@langchain/langgraph"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
@@ -16,6 +16,7 @@ import { AgentRuntime, LocalSigner, createAptosTools } from "move-agent-kit"
 
 
 export async function chatWithChain(msg: string): Promise<string> {
+    console.log("chatWithChain");
     let response = "";
     try {
         const aptosConfig = new AptosConfig({
@@ -34,13 +35,13 @@ export async function chatWithChain(msg: string): Promise<string> {
         })
         const tools = createAptosTools(agentRuntime)
 
-        const llm = new ChatAnthropic({
-            model: "claude-3-sonnet-20240229",
-        })
-        //const llm = new ChatOpenAI({
-        //    apiKey: process.env.OPENAI_API_KEY,
-        //    modelName: "gpt-4o-mini",
-        //});  
+        // const llm = new ChatAnthropic({
+        //     model: "claude-3-sonnet-20240229",
+        // })
+        const llm = new ChatOpenAI({
+           apiKey: process.env.OPENAI_API_KEY,
+           modelName: "gpt-4o-mini",
+        });  
         const memory5 = new MemorySaver()
 
         const agent = createReactAgent({
@@ -82,3 +83,24 @@ export async function chatWithChain(msg: string): Promise<string> {
         throw new Error(`ChatWithChain Error: ${error.message}`);
     }
 }
+
+export async function chatWithAI(msg: string): Promise<string> {
+  console.log("chatWithAI msg: " + msg);
+  let response = "";
+  try {
+      const model = new ChatOpenAI({
+        configuration: { apiKey:  process.env.OPENAI_API_KEY },
+        model: 'gpt-4o-mini'
+      });
+      const result = await model.invoke([
+        { role: "system", content: "You are an expert in the field of cryptocurrency" },
+        { role: "user", content: "Please analyze the content in the cryptocurrency field in the image below. If there is no cryptocurrency or the image information is incomplete, you should point it out and say that it has nothing to do with cryptocurrency or that the screenshot of the image is incomplete. You can use a larger screenshot area" }
+      ]);
+      response = result.content as string;
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.error("API Error:", error);
+      return response;
+    }
+  }

@@ -2,7 +2,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express, { type Request as ExpressRequest } from "express";
 import { Routes } from "./routes.ts";
+import dotenv from "dotenv";
 
+dotenv.config();
 
 export class AgentServer {
     public app: express.Application;
