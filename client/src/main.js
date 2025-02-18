@@ -38,7 +38,7 @@ function createWindow() {
         },
     });
 
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 
     // Page
     mainWindow.loadFile('pages/index.html');
@@ -65,7 +65,7 @@ function createWindow() {
         {
             label: 'Quit',
             click: () => {
-                app.quit();
+                quitApp();
             },
         },
     ]);
@@ -91,6 +91,14 @@ ipcMain.handle('take-screenshot', async () => {
     return source.thumbnail.toDataURL(); // Image Data URL
 });
 
+function quitApp() {
+    if (tray) {
+        tray.destroy();
+    }
+    app.quit();
+    app.exit();
+}
+
 // Init
 app.whenReady().then(() => {
     createWindow();
@@ -106,6 +114,6 @@ app.whenReady().then(() => {
 // Close Windows/Linux
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        app.quit();
+        quitApp();
     }
 });
