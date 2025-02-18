@@ -1,7 +1,7 @@
 import express from "express";
 import { AgentServer } from "./index";
-import { Scraper } from "agent-twitter-client";
-import { TwitterApi } from "twitter-api-v2";
+// import { Scraper } from "agent-twitter-client";
+// import { TwitterApi } from "twitter-api-v2";
 
 interface ApiResponse<T = any> {
     status?: number;

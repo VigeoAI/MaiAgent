@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import cors from "cors";
 import express, { type Request as ExpressRequest } from "express";
-import { Routes } from "./routes.ts";
+// import { Routes } from "./routes";
 
 
 export class AgentServer {
@@ -15,8 +15,8 @@ export class AgentServer {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
 
-        const routes = new Routes(this);
-        routes.setupRoutes(this.app);
+        // const routes = new Routes(this);
+        // routes.setupRoutes(this.app);
 
         // Define an interface that extends the Express Request interface
         interface CustomRequest extends ExpressRequest {
