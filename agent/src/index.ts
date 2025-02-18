@@ -2,7 +2,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express, { type Request as ExpressRequest } from "express";
 import { Routes } from "./routes.ts";
+import dotenv from "dotenv";
 
+dotenv.config();
 
 export class AgentServer {
     public app: express.Application;
@@ -12,8 +14,13 @@ export class AgentServer {
         this.app = express();
         this.app.use(cors());
 
-        this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({ extended: true }));
+        this.app.use(express.json({
+            limit: '50mb'
+        }));
+        this.app.use(express.urlencoded({
+            limit: '50mb',
+            extended: true
+        }));
 
         const routes = new Routes(this);
         routes.setupRoutes(this.app);

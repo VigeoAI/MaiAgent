@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@vitest/eslint-plugin": "1.0.1",
+    "openai": "^4.85.1",
     "pnpm": "9.15.0",
     "sharp": "0.33.5"
   },
