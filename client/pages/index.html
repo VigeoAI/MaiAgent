@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaiPet</title>
+    <link rel="icon" type="image/png" src="../assets/logo48.png">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+        }
+        #icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10%;
+            cursor: pointer;
+            position: absolute;
+            top: 70%;
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="screenshot-container"></div>
+    <div id="icon">
+        <img style="width: 80px; height: auto;" src="../assets/mai.gif">
+    </div>
+
+    <script>
+        const icon = document.getElementById('icon');
+        let isDragging = false;
+        let offset = { x: 0, y: 0 };
+
+        // Move
+        icon.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offset.x = e.clientX - icon.offsetLeft;
+            offset.y = e.clientY - icon.offsetTop;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                icon.style.left = `${e.clientX - offset.x}px`;
+                icon.style.top = `${e.clientY - offset.y}px`;
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        console.log(window)
+
+        const screenshotContainer = document.getElementById('screenshot-container');
+        icon.addEventListener('dblclick', async () => {
+            console.log('Icon clicked!');
+        });
+
+        icon.addEventListener('click', async () => {
+            try {
+                console.log("clicked.")
+                // ScreenShot
+                const image = await window.electronAPI.takeScreenshot();
+                console.log(image)
+
+                // Captured Image
+                const img = document.createElement('img');
+                img.src = image;
+                screenshotContainer.innerHTML = '';
+                screenshotContainer.appendChild(img);
+                alert('Got Image');
+
+                window.electronAPI.navigate('chat');
+            } catch (error) {
+                console.error('Failed to take screenshot:', error);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaiPet</title>
+    <link rel="icon" type="image/png" src="../assets/logo48.png">
+    <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-header-title">MaiAgent</div>
+            <button class="close-btn" id="closeBtn">×</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <!-- Messages will be appended here -->
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Ask questions or open applications..." />
+            <button id="sendMessageBtn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sendMessageBtn')?.addEventListener('click', sendMessage);
+        document.getElementById('closeBtn')?.addEventListener('click', closeChat);
+
+        function sendMessage() {
+            //const inputField = document.getElementById('chatInput') as HTMLInputElement;
+            const inputField = document.getElementById('chatInput');
+            const messageText = inputField.value.trim();
+            if (messageText) {
+                appendMessage(messageText);
+                inputField.value = '';
+            }
+        }
+
+        function appendMessage(message) {
+            const chatBody = document.getElementById('chatBody');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message');
+            messageElement.innerHTML = `<p>${message}</p>`;
+            chatBody.appendChild(messageElement);
+            chatBody.scrollTop = chatBody.scrollHeight; // Scroll to the bottom
+        }
+
+        function closeChat() {
+            //const chatContainer = document.querySelector('.chat-container');
+            //if (chatContainer) {
+            //    chatContainer.style.display = 'none'; // Hide the chat window when close button is clicked
+            //}
+            window.electronAPI.navigate('index');
+        }
+        appendMessage("Processing, please wait a few seconds......");
+
+    </script>
+</body>
+</html>
