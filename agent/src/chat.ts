@@ -148,7 +148,9 @@ export async function visionPicture(base64Image: string): Promise<string> {
     messages: [{
       role: "user",
       content: [
-        { type: "text", text: "You are an expert in the field of cryptocurrency. Please mainly describe the following images and content related to cryptocurrency. If there is a candlestick, please focus on the analysis of the candlestick section. If there is no content related to encryption, please also say that there is no content related to cryptocurrency. Do not use markdown syntax in your return result, please answer directly in concise language." },
+        { type: "text", text: `Act as a cryptocurrency expert to directly analyze crypto asset data in the image. If candlestick charts are present: 1. Immediately identify the trading pair (e.g., BTC/USDT 4H chart shows...). 2. Describe body length, wick characteristics, and key support/resistance levels. 3. Integrate current price and 24h trading volume (e.g., current 30,500,1.8B volume). For multiple coins: Prioritize top 3 by market cap (BTC > ETH > others), separating each with bullet points. If no crypto elements detected, explicitly state 'No cryptocurrency-related content found.' Use conversational English, avoid technical jargon, and eliminate all introductory phrases about 'the image shows...'."
+Ideal response format:
+"BTC 4H chart shows bullish momentum with consecutive green candles, breaking 31,200resistance.24hvolumeup352.4B. ETH forms double bottom at 1,920withMACDgoldencross,980M volume. SOL plunged 12% temporarily, possibly due to...` },
         {
           type: "image_url",
           image_url: {
