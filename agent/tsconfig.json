@@ -1,8 +1,17 @@
 {
-    "extends": "../core/tsconfig.json",
     "compilerOptions": {
-        "outDir": "dist",
-        "rootDir": "src"
+        "target": "ES6",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true,
+        "allowImportingTsExtensions": true
     },
-    "include": ["src/**/*.ts"]
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "dist"]
 }
