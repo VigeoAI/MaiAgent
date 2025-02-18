@@ -24,8 +24,34 @@
 
     <script src="../src/service.js"></script>
     <script>
-        document.getElementById('sendMessageBtn')?.addEventListener('click', sendMessage);
+        document.getElementById('sendMessageBtn')?.addEventListener('click', inferPicture);
         document.getElementById('closeBtn')?.addEventListener('click', closeChat);
+
+        async function inferPicture() {
+            try {
+                const image = await window.electronAPI.takeScreenshot();
+                //console.log(image)
+
+                const reqParam = {
+                    imagebase64: image,
+                };
+                const resp = await agentRequest(reqParam, VISION_PATH);
+                if (resp) {
+                    try {
+                        //const msg = JSON.parse(resp);
+                        appendMessage(resp.reason);
+                    }
+                    catch (error) {
+                        appendMessage(JSON.stringify(resp));
+                    }
+                }
+                else {
+                    appendMessage("Error " + resp);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
 
         async function sendMessage() {
             //const inputField = document.getElementById('chatInput') as HTMLInputElement;
@@ -78,6 +104,7 @@
             window.electronAPI.navigate('index');
         }
         appendMessage("Processing, please wait a few seconds......");
+        inferPicture();
 
     </script>
 </body>

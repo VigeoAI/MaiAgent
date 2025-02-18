@@ -61,9 +61,9 @@
 
         icon.addEventListener('click', async () => {
             try {
-                console.log("clicked.")
+                //console.log("clicked.")
                 // ScreenShot
-                const image = await window.electronAPI.takeScreenshot();
+                /*const image = await window.electronAPI.takeScreenshot();
                 console.log(image)
 
                 // Captured Image
@@ -71,7 +71,7 @@
                 img.src = image;
                 screenshotContainer.innerHTML = '';
                 screenshotContainer.appendChild(img);
-                alert('Got Image');
+                alert('Got Image');*/
 
                 window.electronAPI.navigate('chat');
             } catch (error) {

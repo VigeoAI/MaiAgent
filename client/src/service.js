@@ -1,6 +1,8 @@
 // The Inferface for cloud
-const AGENT_URL = `https://api.mai-agent.ai/`;
+//const AGENT_URL = `https://api.mai-agent.ai/`;
+const AGENT_URL = `http://97.64.21.158:3020/`;
 const CHAT_PATH = 'chat';
+const VISION_PATH = 'vision_picture';
 
 
 async function agentRequest(params, apiPath, method = 'POST') {
