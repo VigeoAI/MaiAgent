@@ -63,3 +63,6 @@ export class AgentServer {
         }
     }
 }
+
+const agentServer = new AgentServer();
+agentServer.start(3020);

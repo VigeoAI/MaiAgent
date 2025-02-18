@@ -41,8 +41,11 @@
 		"tsup": "8.3.5"
 	},
 	"scripts": {
-		"build": "tsup --format esm --dts",
-		"dev": "tsup --format esm --dts --watch"
+		"start": "node --loader ts-node/esm src/index.ts",
+		"dev": "node --loader ts-node/esm src/index.ts",
+		"check-types": "tsc --noEmit",
+		"test": "jest",
+		"build": "tsup --format esm --dts"
 	},
 	"peerDependencies": {
 		"whatwg-url": "7.1.0"
