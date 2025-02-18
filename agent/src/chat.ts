@@ -7,15 +7,13 @@ import {
     PrivateKey,
     PrivateKeyVariants,
 } from "@aptos-labs/ts-sdk"
-import * as fs from 'fs';
-// import { ChatAnthropic } from "@langchain/anthropic"
+
 import { ChatOpenAI } from "@langchain/openai"
 import { HumanMessage } from "@langchain/core/messages"
 import { MemorySaver } from "@langchain/langgraph"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
 import { AgentRuntime, LocalSigner, createAptosTools } from "move-agent-kit"
 import OpenAI from "openai";
-
 
 export async function chatWithChain(msg: string): Promise<string> {
     console.log("chatWithChain");
@@ -37,9 +35,6 @@ export async function chatWithChain(msg: string): Promise<string> {
         })
         const tools = createAptosTools(agentRuntime)
 
-        // const llm = new ChatAnthropic({
-        //     model: "claude-3-sonnet-20240229",
-        // })
         const llm = new ChatOpenAI({
            apiKey: process.env.OPENAI_API_KEY,
            modelName: "gpt-4o-mini",
@@ -86,44 +81,73 @@ export async function chatWithChain(msg: string): Promise<string> {
     }
 }
 
-// langchain
+// chat with open ai by langchain
 export async function chatWithAI(msg: string): Promise<string> {
-  console.log("chatWithAI msg: " + msg);
+  console.log("chatWith langchain AI msg: " + msg);
   let response = "";
   try {
-      const model = new ChatOpenAI({
-        configuration: { apiKey:  process.env.OPENAI_API_KEY },
-        model: 'gpt-4o-mini'
-      });
-      const result = await model.invoke([
-        { role: "system", content: "You are an expert in the field of cryptocurrency" },
-        { role: "user", content: "Please analyze the content in the cryptocurrency field in the image below. If there is no cryptocurrency or the image information is incomplete, you should point it out and say that it has nothing to do with cryptocurrency or that the screenshot of the image is incomplete. You can use a larger screenshot area" }
-      ]);
-      response = result.content as string;
-      console.log(response);
-      return response;
-    } catch (error) {
-      console.error("API Error:", error);
-      return response;
-    }
+    const model = new ChatOpenAI({
+      configuration: { apiKey: process.env.OPENAI_API_KEY },
+      model: 'gpt-4o-mini'
+    });
+    const result = await model.invoke([
+      { role: "system", content: "You are an expert in the field of cryptocurrency" },
+      { role: "user", content: "Please focus on discussing cryptocurrency related content in the following conversation" }
+    ]);
+    response = result.content as string;
+    // console.log(response);
+    return response;
+  } catch (error) {
+    console.error("API Error:", error);
+    return response;
   }
+}
+
+// chat with native openai
+// export async function chatWithOpenAI(msg: string): Promise<string> {
+//   console.log("chatWithOpenAI msg: " + msg);
+//   const client = new OpenAI({
+//     apiKey: process.env.OPENAI_API_KEY
+//   });
+//   const imagePath = 'sssss.png';
+//   const base64Image = fs.readFileSync(imagePath).toString('base64');
+//   // console.log("chatWithOpenAI image base64Image: " + base64Image);
+
+//   const response = await client.chat.completions.create({
+//     model: "gpt-4o-mini",
+//     messages: [{
+//       role: "user",
+//       content: [
+//         { type: "text", text: "Describe the content of this image" },
+//         {
+//           type: "image_url",
+//           image_url: {
+//             url: `data:image/jpeg;base64,${base64Image}`
+//           }
+//         }
+//       ]
+//     }],
+//     max_tokens: 1000
+//   });
+
+//   const ai_ans = response.choices[0].message.content as string;
+//   console.log(ai_ans);
+//   return ai_ans;
+// }
 
 // native openai
-export async function chatWithOpenAI(msg: string): Promise<string> {
-  console.log("chatWithOpenAI image msg: " + msg);
+export async function visionPicture(base64Image: string): Promise<string> {
+  // console.log("chatWithOpenAI base64Image: " + base64Image);
   const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
   });
-  const imagePath = 'sssss.png';
-  const base64Image = fs.readFileSync(imagePath).toString('base64');
-  // console.log("chatWithOpenAI image base64Image: " + base64Image);
 
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [{
       role: "user",
       content: [
-        { type: "text", text: "Describe the content of this image" },
+        { type: "text", text: "You are an expert in the field of cryptocurrency. Please mainly describe the following images and content related to cryptocurrency. If there is a candlestick, please focus on the analysis of the candlestick section. If there is no content related to encryption, please also say that there is no content related to cryptocurrency. Do not use markdown syntax in your return result, please answer directly in concise language." },
         {
           type: "image_url",
           image_url: {
@@ -134,8 +158,7 @@ export async function chatWithOpenAI(msg: string): Promise<string> {
     }],
     max_tokens: 1000
   });
-
-  const rrr = response.choices[0].message.content as string;
-  console.log(rrr);
-  return rrr;
+  const ai_ans = response.choices[0].message.content as string;
+  // console.log(ai_ans);
+  return ai_ans;
 }

@@ -1,6 +1,6 @@
 import express from "express";
 import { AgentServer } from "./index.ts";
-import { chatWithAI, chatWithChain, chatWithOpenAI } from "./chat.ts";
+import { chatWithAI, chatWithChain, visionPicture } from "./chat.ts";
 // import { Scraper } from "agent-twitter-client";
 // import { TwitterApi } from "twitter-api-v2";
 
@@ -74,15 +74,33 @@ export class Routes {
 
     setupRoutes(app: express.Application): void {
         //app.post("/login", this.handleLogin.bind(this));
-        app.post("/chat", this.handleChat.bind(this));
+        app.post("/chat", this.handleChatWithChain.bind(this));
+        app.post("/vision_picture", this.handleVisionPicture.bind(this));
 
     }
-    async handleChat(req: express.Request, res: express.Response) {
+    async handleVisionPicture(req: express.Request, res: express.Response) {
+        const imgbase64 = req.body.imagebase64.replace(/^data:image\/\w+;base64,/, "");
+        console.log("handleVisionPicture");
+        
+        if (!imgbase64) {
+            throw new ApiError(400, "Missing required fields");
+        }
+
+        let answer = await visionPicture(imgbase64);
+        console.log(" handle chat.ans: " + answer);
+
+        res.json({
+            res: false,
+            reason: answer,
+        });
+    }
+
+    async handleChatWithChain(req: express.Request, res: express.Response) {
         const {
             msg
         } = req.body;
         console.log(" handle chat.");
-        let answer = await chatWithOpenAI("BTC is Good");
+        let answer = await chatWithChain("BTC is Good");
         console.log(" handle chat.ans: " + answer);
 
         if (!msg) {
