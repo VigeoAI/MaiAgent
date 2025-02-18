@@ -27,13 +27,13 @@ export async function chatWithChain(msg: string): Promise<string> {
                 PrivateKey.formatPrivateKey(process.env.PRIVATE_KEY as HexInput, PrivateKeyVariants.Ed25519)
             ),
         })
-    
+
         const signer = new LocalSigner(account, Network.MAINNET)
         const agentRuntime = new AgentRuntime(signer, aptos, {
             PANORA_API_KEY: process.env.PANORA_API_KEY,
         })
         const tools = createAptosTools(agentRuntime)
-    
+
         const llm = new ChatAnthropic({
             model: "claude-3-sonnet-20240229",
         })
@@ -42,7 +42,7 @@ export async function chatWithChain(msg: string): Promise<string> {
         //    modelName: "gpt-4o-mini",
         //});
         const memory5 = new MemorySaver()
-    
+
         const agent = createReactAgent({
             llm,
             tools,
@@ -58,7 +58,7 @@ export async function chatWithChain(msg: string): Promise<string> {
                 The input json should be string (IMPORTANT)
             `,
         })
-    
+
         const config = { configurable: { thread_id: "Aptos Agent Kit!" } }
         const stream = await agent.stream(
             {
@@ -66,7 +66,7 @@ export async function chatWithChain(msg: string): Promise<string> {
             },
             config
         )
-    
+
         for await (const chunk of stream) {
             if ("agent" in chunk) {
                 console.log(chunk.agent.messages[0].content)

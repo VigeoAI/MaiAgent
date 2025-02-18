@@ -22,17 +22,30 @@
         </div>
     </div>
 
+    <script src="../src/service.js"></script>
     <script>
         document.getElementById('sendMessageBtn')?.addEventListener('click', sendMessage);
         document.getElementById('closeBtn')?.addEventListener('click', closeChat);
 
-        function sendMessage() {
+        async function sendMessage() {
             //const inputField = document.getElementById('chatInput') as HTMLInputElement;
             const inputField = document.getElementById('chatInput');
             const messageText = inputField.value.trim();
             if (messageText) {
                 appendMessage(messageText);
                 inputField.value = '';
+            }
+
+            // API
+            const reqParam = {
+                text: "get balance",
+            };
+            try {
+                let resp = await agentRequest(reqParam, CHAT_PATH);
+                console.log(resp);
+                appendMessage(JSON.stringify(resp));
+            } catch (error) {
+                console.log(error);
             }
         }
 
