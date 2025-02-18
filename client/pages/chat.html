@@ -38,12 +38,24 @@
 
             // API
             const reqParam = {
-                text: "get balance",
+                text: messageText,
             };
             try {
-                let resp = await agentRequest(reqParam, CHAT_PATH);
-                console.log(resp);
-                appendMessage(JSON.stringify(resp));
+                const resp = await agentRequest(reqParam, CHAT_PATH);
+                //console.log(resp);
+                if (resp && resp.success && resp.data) {
+                    try {
+                        const chatMsg = JSON.parse(resp.data.response);
+                        appendMessage(chatMsg.text);
+                    }
+                    catch (error) {
+                        appendMessage(resp.data.response);
+                    }
+                }
+                else {
+                    appendMessage("Error " + resp.message);
+                }
+                //appendMessage(JSON.stringify(resp));
             } catch (error) {
                 console.log(error);
             }

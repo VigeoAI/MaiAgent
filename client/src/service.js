@@ -1,5 +1,5 @@
 // The Inferface for cloud
-const AGENT_URL = `http://api.mai-agent.ai/`;
+const AGENT_URL = `https://api.mai-agent.ai/`;
 const CHAT_PATH = 'chat';
 
 
