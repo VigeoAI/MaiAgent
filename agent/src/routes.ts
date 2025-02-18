@@ -53,7 +53,7 @@ class AuthUtils {
             return res.json(this.createResponse(result));
         } catch (error) {
             console.error(`Error in handler:`, error);
-            const response = this.createErrorResponse(error);
+            const response = this.createErrorResponse(error as Error);
             return res
                 .status(error instanceof ApiError ? error.status : 500)
                 .json(response);
@@ -74,22 +74,21 @@ export class Routes {
     setupRoutes(app: express.Application): void {
         //app.post("/login", this.handleLogin.bind(this));
         app.post("/chat", this.handleChat.bind(this));
+
     }
-
     async handleChat(req: express.Request, res: express.Response) {
-        return this.authUtils.withErrorHandling(req, res, async () => {
-            const {
-                msg
-            } = req.body;
+        const {
+            msg
+        } = req.body;
+        console.log(" handle chat.");
 
-            if (!msg) {
-                throw new ApiError(400, "Missing required fields");
-            }
-
-            return {
-                ok: true,
-            };
-        });
+        if (!msg) {
+            throw new ApiError(400, "Missing required fields");
+        }
+            res.json({
+                res: false,
+                reason: "try again",
+            });
     }
 
 }
