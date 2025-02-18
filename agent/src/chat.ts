@@ -92,7 +92,8 @@ export async function chatWithAI(msg: string): Promise<string> {
     });
     const result = await model.invoke([
       { role: "system", content: "You are an expert in the field of cryptocurrency" },
-      { role: "user", content: "Please focus on discussing cryptocurrency related content in the following conversation" }
+      { role: "user", content: "Please focus on discussing cryptocurrency related content in the following conversation" },
+      { role: "user", content: msg }
     ]);
     response = result.content as string;
     // console.log(response);

@@ -74,9 +74,26 @@ export class Routes {
 
     setupRoutes(app: express.Application): void {
         //app.post("/login", this.handleLogin.bind(this));
-        app.post("/chat", this.handleChatWithChain.bind(this));
+        app.post("/chat_with_chain", this.handleChatWithChain.bind(this));
+        app.post("/chat_ai", this.handleChatAI.bind(this));
         app.post("/vision_picture", this.handleVisionPicture.bind(this));
+    }
+    
+    async handleChatAI(req: express.Request, res: express.Response) {
+        const {
+            msg
+        } = req.body;
+        console.log(" handle chat.");
+        let answer = await chatWithAI(msg);
+        // console.log(" handle chat.ans: " + answer);
 
+        if (!msg) {
+            throw new ApiError(400, "Missing required fields");
+        }
+        res.json({
+            res: false,
+            reason: answer,
+        });
     }
     async handleVisionPicture(req: express.Request, res: express.Response) {
         const imgbase64 = req.body.imagebase64.replace(/^data:image\/\w+;base64,/, "");
@@ -87,10 +104,10 @@ export class Routes {
         }
 
         let answer = await visionPicture(imgbase64);
-        console.log(" handle chat.ans: " + answer);
+        // console.log(" handle chat.ans: " + answer);
 
         res.json({
-            res: false,
+            res: true,
             reason: answer,
         });
     }
@@ -101,7 +118,7 @@ export class Routes {
         } = req.body;
         console.log(" handle chat.");
         let answer = await chatWithChain("BTC is Good");
-        console.log(" handle chat.ans: " + answer);
+        // console.log(" handle chat.ans: " + answer);
 
         if (!msg) {
             throw new ApiError(400, "Missing required fields");
