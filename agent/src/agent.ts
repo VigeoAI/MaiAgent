@@ -103,28 +103,30 @@ export async function chatWithAI(msg: string): Promise<string> {
 // native openai
 export async function visionPicture(base64Image: string): Promise<string> {
   // console.log("chatWithOpenAI base64Image: " + base64Image);
-  let aiModel = "";
-  let client = null;
-  if(process.env.KIMI_model) {
-    aiModel = "moonshot-v1-8k-vision-preview";
-    client = new OpenAI({
-      apiKey: process.env.KIMI_APIKEY,
-      baseURL: process.env.KIMI_BASEURL
-    });
-  } else {
-    aiModel = "gpt-4o-mini";
-    client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    });
-  }
-   
-  
-  const response = await client.chat.completions.create({
+  try {
+    let aiModel = "";
+    let client = null;
+    if (process.env.KIMI_APIKEY) {
+      aiModel = "moonshot-v1-8k-vision-preview";
+      client = new OpenAI({
+        apiKey: process.env.KIMI_APIKEY,
+        baseURL: process.env.KIMI_BASEURL
+      });
+    } else {
+      aiModel = "gpt-4o-mini";
+      client = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY
+      });
+    }
+
+
+    const response = await client.chat.completions.create({
     model: aiModel,
     messages: [{
       role: "user",
       content: [
-        { type: "text", text: `Act as a cryptocurrency expert to directly analyze crypto asset data in the image. If candlestick charts are present: 1. Immediately identify the trading pair (e.g., BTC/USDT 4H chart shows...). 2. Describe body length, wick characteristics, and key support/resistance levels. 3. Integrate current price and 24h trading volume (e.g., current 30,500,1.8B volume). For multiple coins: Prioritize top 3 by market cap (BTC > ETH > others), separating each with bullet points. If no crypto elements detected, explicitly state 'No cryptocurrency-related content found.' Use conversational English, avoid technical jargon, and eliminate all introductory phrases about 'the image shows...'."
+        {
+          type: "text", text: `Act as a cryptocurrency expert to directly analyze crypto asset data in the image. If candlestick charts are present: 1. Immediately identify the trading pair (e.g., BTC/USDT 4H chart shows...). 2. Describe body length, wick characteristics, and key support/resistance levels. 3. Integrate current price and 24h trading volume (e.g., current 30,500,1.8B volume). For multiple coins: Prioritize top 3 by market cap (BTC > ETH > others), separating each with bullet points. If no crypto elements detected, explicitly state 'No cryptocurrency-related content found.' Use conversational English, avoid technical jargon, and eliminate all introductory phrases about 'the image shows...'."
 Ideal response format:
 "BTC 4H chart shows bullish momentum with consecutive green candles, breaking 31,200resistance.24hvolumeup352.4B. ETH forms double bottom at 1,920withMACDgoldencross,980M volume. SOL plunged 12% temporarily, possibly due to...
 
@@ -140,32 +142,36 @@ Do not use the markdown syntax to modify JSON. Please return JSON directly witho
     }],
     max_tokens: 1000
   });
-  const ai_ans_json_str = response.choices[0].message.content as string;
-  const ai_ans_json_obj = JSON.parse(ai_ans_json_str);
-  if( ai_ans_json_obj.COIN === "NONE") {
-    ai_ans_json_obj.COIN = "APT"
+    const ai_ans_json_str = response.choices[0].message.content as string;
+    const ai_ans_json_obj = JSON.parse(ai_ans_json_str);
+    if (ai_ans_json_obj.COIN === "NONE") {
+      ai_ans_json_obj.COIN = "APT"
+    }
+    ai_ans_json_obj.ANA;
+
+    let promptPrice = "";
+    let priceTool = null;
+    tools.forEach(tool => {
+      // console.log("toolname: " + tool.name);
+      if (tool.name === "aptos_token_price") {
+        priceTool = tool;
+      };
+    });
+
+    if (priceTool) {
+      promptPrice = await (priceTool as AptosGetTokenPriceTool).invoke(ai_ans_json_obj.COIN);
+    }
+
+    let promptTweet = await TwitterDataProvider.fetchSearchTweets(ai_ans_json_obj.COIN);
+
+    const ai_ans_with_chain = await chatWithChain(ai_ans_json_obj.ANA + "\nPlease analyze and summarize the encrypted data in approximately 100 words. You can combine some of the following information, such as your data on the aptos network, the price information of this cryptocurrency, and data on Twitter."
+      + promptPrice + promptTweet);
+    //console.log("promptPrice: " + promptPrice + "\n promptTweet: " + promptTweet)
+    //console.log("ai_ans_json_obj.ANA: " + ai_ans_json_obj.ANA + "\n ai_ans_with_chain: " + ai_ans_with_chain)
+
+    return ai_ans_json_obj.ANA + "\n[analysis]" + ai_ans_with_chain;
+  } catch (error) {
+    console.error("API Error:", error);
+    return "response" + error;
   }
-  ai_ans_json_obj.ANA;
-
-  let promptPrice = "";
-  let priceTool = null;
-  tools.forEach(tool => {
-    // console.log("toolname: " + tool.name);
-    if(tool.name === "aptos_token_price") {
-       priceTool  = tool;
-    };
-  });
-
-  if (priceTool) {
-    promptPrice = await (priceTool as AptosGetTokenPriceTool).invoke(ai_ans_json_obj.COIN);
-  }
-
-  let promptTweet = await TwitterDataProvider.fetchSearchTweets(ai_ans_json_obj.COIN);
-
-  const ai_ans_with_chain = await chatWithChain(ai_ans_json_obj.ANA + "\nPlease analyze and summarize the encrypted data in approximately 100 words. You can combine some of the following information, such as your data on the aptos network, the price information of this cryptocurrency, and data on Twitter." 
-    + promptPrice + promptTweet);
-  //console.log("promptPrice: " + promptPrice + "\n promptTweet: " + promptTweet)
-  //console.log("ai_ans_json_obj.ANA: " + ai_ans_json_obj.ANA + "\n ai_ans_with_chain: " + ai_ans_with_chain)
-
-  return ai_ans_json_obj.ANA +"\n[analysis]"+ ai_ans_with_chain;
 }
