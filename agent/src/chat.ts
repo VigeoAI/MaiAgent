@@ -14,7 +14,7 @@ import { MemorySaver } from "@langchain/langgraph"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
 import { AgentRuntime, LocalSigner, createAptosTools } from "move-agent-kit"
 import OpenAI from "openai";
-import { TwitterDataProvider } from "./social";
+import { TwitterDataProvider } from "./social.ts";
 
 export async function chatWithChain(msg: string): Promise<string> {
     console.log("chatWithChain");
