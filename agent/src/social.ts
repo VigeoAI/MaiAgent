@@ -12,9 +12,9 @@ export class TwitterDataProvider {
             if (!await scraper.isLoggedIn()) {
                 // Log in to Twitter using the configured environment variables
                 await scraper.login(
-                    process.env.TWITTER_USERNAME,
-                    process.env.TWITTER_PASSWORD,
-                    process.env.TWITTER_EMAIL
+                    process.env.TWITTER_USERNAME+"",
+                    process.env.TWITTER_PASSWORD+"",
+                    process.env.TWITTER_EMAIL+""
                 );
 
                 console.log("Logged in successfully!");
@@ -28,8 +28,7 @@ export class TwitterDataProvider {
                     SearchMode.Latest
                 );
                 const promptTweet =
-                    `
-        Please combine the data on Twitter and cryptocurrency kline when analyzing and predicting, Below, I will provide Twitter and Kline data separately, Here are some tweets/replied:
+                    `Here are some Twitter tweets/replied:
         ${[...tweetsres?.tweets]
                         .map(
                             (tweet) => `

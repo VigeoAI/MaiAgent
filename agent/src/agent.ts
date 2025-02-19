@@ -1,4 +1,5 @@
 import {
+    Account,
     Aptos,
     AptosConfig,
     Ed25519PrivateKey,
@@ -12,30 +13,26 @@ import { ChatOpenAI } from "@langchain/openai"
 import { HumanMessage } from "@langchain/core/messages"
 import { MemorySaver } from "@langchain/langgraph"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
-import { AgentRuntime, LocalSigner, createAptosTools } from "move-agent-kit"
+import { AgentRuntime, LocalSigner, createAptosTools, AptosGetTokenPriceTool} from "move-agent-kit"
 import OpenAI from "openai";
 import { TwitterDataProvider } from "./social.ts";
 
+const aptosConfig = new AptosConfig({ network: Network.DEVNET });
+const aptos = new Aptos(aptosConfig);
+const account = Account.generate();
+const signer = new LocalSigner(account, Network.MAINNET);
+export const agentRuntime = new AgentRuntime(signer, aptos, {
+    PANORA_API_KEY: process.env.PANORA_API_KEY,
+});
+export const tools = createAptosTools(agentRuntime);
+
+
 export async function chatWithChain(msg: string): Promise<string> {
     console.log("chatWithChain");
+
+
     let response = "";
     try {
-        const aptosConfig = new AptosConfig({
-            network: Network.MAINNET,
-        })
-        const aptos = new Aptos(aptosConfig)
-        const account = await aptos.deriveAccountFromPrivateKey({
-            privateKey: new Ed25519PrivateKey(
-                PrivateKey.formatPrivateKey(process.env.PRIVATE_KEY as HexInput, PrivateKeyVariants.Ed25519)
-            ),
-        })
-
-        const signer = new LocalSigner(account, Network.MAINNET)
-        const agentRuntime = new AgentRuntime(signer, aptos, {
-            PANORA_API_KEY: process.env.PANORA_API_KEY,
-        })
-        const tools = createAptosTools(agentRuntime)
-
         const llm = new ChatOpenAI({
            apiKey: process.env.OPENAI_API_KEY,
            modelName: "gpt-4o-mini",
@@ -105,47 +102,12 @@ export async function chatWithAI(msg: string): Promise<string> {
   }
 }
 
-// chat with native openai
-// export async function chatWithOpenAI(msg: string): Promise<string> {
-//   console.log("chatWithOpenAI msg: " + msg);
-//   const client = new OpenAI({
-//     apiKey: process.env.OPENAI_API_KEY
-//   });
-//   const imagePath = 'sssss.png';
-//   const base64Image = fs.readFileSync(imagePath).toString('base64');
-//   // console.log("chatWithOpenAI image base64Image: " + base64Image);
-
-//   const response = await client.chat.completions.create({
-//     model: "gpt-4o-mini",
-//     messages: [{
-//       role: "user",
-//       content: [
-//         { type: "text", text: "Describe the content of this image" },
-//         {
-//           type: "image_url",
-//           image_url: {
-//             url: `data:image/jpeg;base64,${base64Image}`
-//           }
-//         }
-//       ]
-//     }],
-//     max_tokens: 1000
-//   });
-
-//   const ai_ans = response.choices[0].message.content as string;
-//   console.log(ai_ans);
-//   return ai_ans;
-// }
-
 // native openai
 export async function visionPicture(base64Image: string): Promise<string> {
   // console.log("chatWithOpenAI base64Image: " + base64Image);
   const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
   });
-
-  const twEvents = await TwitterDataProvider.fetchSearchTweets("aptos");
-  console.log(twEvents);
 
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini",
@@ -154,7 +116,10 @@ export async function visionPicture(base64Image: string): Promise<string> {
       content: [
         { type: "text", text: `Act as a cryptocurrency expert to directly analyze crypto asset data in the image. If candlestick charts are present: 1. Immediately identify the trading pair (e.g., BTC/USDT 4H chart shows...). 2. Describe body length, wick characteristics, and key support/resistance levels. 3. Integrate current price and 24h trading volume (e.g., current 30,500,1.8B volume). For multiple coins: Prioritize top 3 by market cap (BTC > ETH > others), separating each with bullet points. If no crypto elements detected, explicitly state 'No cryptocurrency-related content found.' Use conversational English, avoid technical jargon, and eliminate all introductory phrases about 'the image shows...'."
 Ideal response format:
-"BTC 4H chart shows bullish momentum with consecutive green candles, breaking 31,200resistance.24hvolumeup352.4B. ETH forms double bottom at 1,920withMACDgoldencross,980M volume. SOL plunged 12% temporarily, possibly due to...` },
+"BTC 4H chart shows bullish momentum with consecutive green candles, breaking 31,200resistance.24hvolumeup352.4B. ETH forms double bottom at 1,920withMACDgoldencross,980M volume. SOL plunged 12% temporarily, possibly due to...
+
+Your return result is a JSON format, as follows: {"COIN":"BTC","ANA":"The price of BTC is rising...."}, If there is a candlestick, fill in the name of the coin with the candlestick in the coin, otherwise add the name of another cryptocurrency. If there is no cryptocurrency, fill in NONE in coin.
+Do not use the markdown syntax to modify JSON. Please return JSON directly without any additional fields.` },
         {
           type: "image_url",
           image_url: {
@@ -165,7 +130,32 @@ Ideal response format:
     }],
     max_tokens: 1000
   });
-  const ai_ans = response.choices[0].message.content as string;
-  // console.log(ai_ans);
-  return ai_ans;
+  const ai_ans_json_str = response.choices[0].message.content as string;
+  const ai_ans_json_obj = JSON.parse(ai_ans_json_str);
+  if( ai_ans_json_obj.COIN === "NONE") {
+    ai_ans_json_obj.COIN = "APT"
+  }
+  ai_ans_json_obj.ANA;
+
+  let promptPrice = "";
+  let priceTool = null;
+  tools.forEach(tool => {
+    // console.log("toolname: " + tool.name);
+    if(tool.name === "aptos_token_price") {
+       priceTool  = tool;
+    };
+  });
+
+  if (priceTool) {
+    promptPrice = await (priceTool as AptosGetTokenPriceTool).invoke(ai_ans_json_obj.COIN);
+  }
+
+  let promptTweet = await TwitterDataProvider.fetchSearchTweets(ai_ans_json_obj.COIN);
+
+  const ai_ans_with_chain = await chatWithChain(ai_ans_json_obj.ANA + "\nPlease analyze and summarize the encrypted data in approximately 100 words. You can combine some of the following information, such as your data on the aptos network, the price information of this cryptocurrency, and data on Twitter." 
+    + promptPrice + promptTweet);
+  //console.log("promptPrice: " + promptPrice + "\n promptTweet: " + promptTweet)
+  //console.log("ai_ans_json_obj.ANA: " + ai_ans_json_obj.ANA + "\n ai_ans_with_chain: " + ai_ans_with_chain)
+
+  return ai_ans_json_obj.ANA +"\n[analysis]"+ ai_ans_with_chain;
 }
