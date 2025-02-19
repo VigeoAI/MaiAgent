@@ -14,6 +14,7 @@ import { MemorySaver } from "@langchain/langgraph"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
 import { AgentRuntime, LocalSigner, createAptosTools } from "move-agent-kit"
 import OpenAI from "openai";
+import { TwitterDataProvider } from "./social";
 
 export async function chatWithChain(msg: string): Promise<string> {
     console.log("chatWithChain");
@@ -142,6 +143,9 @@ export async function visionPicture(base64Image: string): Promise<string> {
   const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
   });
+
+  const twEvents = await TwitterDataProvider.fetchSearchTweets("aptos");
+  console.log(twEvents);
 
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini",
