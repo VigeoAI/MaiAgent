@@ -2,18 +2,18 @@ import {
     Account,
     Aptos,
     AptosConfig,
-    Ed25519PrivateKey,
-    HexInput,
     Network,
-    PrivateKey,
-    PrivateKeyVariants,
 } from "@aptos-labs/ts-sdk"
-
 import { ChatOpenAI } from "@langchain/openai"
 import { HumanMessage } from "@langchain/core/messages"
 import { MemorySaver } from "@langchain/langgraph"
 import { createReactAgent } from "@langchain/langgraph/prebuilt"
-import { AgentRuntime, LocalSigner, createAptosTools, AptosGetTokenPriceTool} from "move-agent-kit"
+import {
+  AgentRuntime,
+  LocalSigner,
+  createAptosTools,
+  AptosGetTokenPriceTool
+} from "move-agent-kit"
 import OpenAI from "openai";
 import { TwitterDataProvider } from "./social.ts";
 
@@ -21,16 +21,14 @@ const aptosConfig = new AptosConfig({ network: Network.DEVNET });
 const aptos = new Aptos(aptosConfig);
 const account = Account.generate();
 const signer = new LocalSigner(account, Network.MAINNET);
+
 export const agentRuntime = new AgentRuntime(signer, aptos, {
     PANORA_API_KEY: process.env.PANORA_API_KEY,
 });
+
 export const tools = createAptosTools(agentRuntime);
 
-
 export async function chatWithChain(msg: string): Promise<string> {
-    console.log("chatWithChain");
-
-
     let response = "";
     try {
         const llm = new ChatOpenAI({
