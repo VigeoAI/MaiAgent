@@ -38,7 +38,7 @@ function createWindow() {
         },
     });
 
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 
     // Page
     mainWindow.loadFile('pages/index.html');
@@ -65,7 +65,7 @@ function createWindow() {
         {
             label: 'Quit',
             click: () => {
-                app.quit();
+                quitApp();
             },
         },
     ]);
@@ -86,10 +86,20 @@ ipcMain.on('navigate', (event, page) => {
 
 //
 ipcMain.handle('take-screenshot', async () => {
+    mainWindow.hide();
     const sources = await desktopCapturer.getSources({ types: ['screen'] });
+    mainWindow.show();
     const source = sources[0]; // first screen
     return source.thumbnail.toDataURL(); // Image Data URL
 });
+
+function quitApp() {
+    if (tray) {
+        tray.destroy();
+    }
+    app.quit();
+    app.exit();
+}
 
 // Init
 app.whenReady().then(() => {
@@ -106,6 +116,6 @@ app.whenReady().then(() => {
 // Close Windows/Linux
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        app.quit();
+        quitApp();
     }
 });

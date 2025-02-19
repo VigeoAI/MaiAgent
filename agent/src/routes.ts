@@ -1,7 +1,6 @@
 import express from "express";
-import { AgentServer } from "./index";
-import { Scraper } from "agent-twitter-client";
-import { TwitterApi } from "twitter-api-v2";
+import { AgentServer } from "./index.ts";
+import { chatWithAI, chatWithChain, visionPicture } from "./agent.ts";
 
 interface ApiResponse<T = any> {
     status?: number;
@@ -53,7 +52,7 @@ class AuthUtils {
             return res.json(this.createResponse(result));
         } catch (error) {
             console.error(`Error in handler:`, error);
-            const response = this.createErrorResponse(error);
+            const response = this.createErrorResponse(error as Error);
             return res
                 .status(error instanceof ApiError ? error.status : 500)
                 .json(response);
@@ -73,22 +72,58 @@ export class Routes {
 
     setupRoutes(app: express.Application): void {
         //app.post("/login", this.handleLogin.bind(this));
-        app.post("/chat", this.handleChat.bind(this));
+        app.post("/chat_with_chain", this.handleChatWithChain.bind(this));
+        app.post("/chat_ai", this.handleChatAI.bind(this));
+        app.post("/vision_picture", this.handleVisionPicture.bind(this));
+    }
+    
+    async handleChatAI(req: express.Request, res: express.Response) {
+        const {
+            msg
+        } = req.body;
+        console.log(" handle chat.");
+        let answer = await chatWithAI(msg);
+        // console.log(" handle chat.ans: " + answer);
+
+        if (!msg) {
+            throw new ApiError(400, "Missing required fields");
+        }
+        res.json({
+            res: false,
+            reason: answer,
+        });
+    }
+    async handleVisionPicture(req: express.Request, res: express.Response) {
+        const imgbase64 = req.body.imagebase64.replace(/^data:image\/\w+;base64,/, "");
+        console.log("handleVisionPicture");
+        
+        if (!imgbase64) {
+            throw new ApiError(400, "Missing required fields");
+        }
+
+        let answer = await visionPicture(imgbase64);
+        // console.log(" handle chat.ans: " + answer);
+
+        res.json({
+            res: true,
+            reason: answer,
+        });
     }
 
-    async handleChat(req: express.Request, res: express.Response) {
-        return this.authUtils.withErrorHandling(req, res, async () => {
-            const {
-                msg
-            } = req.body;
+    async handleChatWithChain(req: express.Request, res: express.Response) {
+        const {
+            msg
+        } = req.body;
+        console.log("handleChatWithChain, msg: " + msg);
+        let answer = await chatWithChain(msg);
+        // console.log(" handle chat.ans: " + answer);
 
-            if (!msg) {
-                throw new ApiError(400, "Missing required fields");
-            }
-
-            return {
-                ok: true,
-            };
+        if (!msg) {
+            throw new ApiError(400, "Missing required fields");
+        }
+        res.json({
+            res: false,
+            reason: answer,
         });
     }
 

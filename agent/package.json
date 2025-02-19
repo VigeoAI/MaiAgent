@@ -18,17 +18,19 @@
 		"dist"
 	],
 	"dependencies": {
-		"@types/body-parser": "1.19.5",
-		"@types/cors": "2.8.17",
-		"@types/express": "5.0.0",
 		"@aptos-labs/ts-sdk": "^1.33.1",
 		"@langchain/anthropic": "^0.3.12",
 		"@langchain/core": "^0.3.32",
 		"@langchain/langgraph": "^0.2.41",
+		"@langchain/openai": "^0.4.4",
+		"@types/body-parser": "1.19.5",
+		"@types/cors": "2.8.17",
+		"@types/express": "5.0.0",
 		"agent-twitter-client": "0.0.18",
 		"ai": "^3.4.33",
 		"body-parser": "1.20.3",
 		"cors": "2.8.5",
+		"dotenv": "^16.4.7",
 		"express": "4.21.1",
 		"marked": "^15.0.6",
 		"move-agent-kit": "^0.0.2",
@@ -38,11 +40,16 @@
 	},
 	"devDependencies": {
 		"@types/multer": "^1.4.12",
-		"tsup": "8.3.5"
+		"ts-node": "^10.9.2",
+		"tsup": "8.3.5",
+		"typescript": "^5.7.3"
 	},
 	"scripts": {
-		"build": "tsup --format esm --dts",
-		"dev": "tsup --format esm --dts --watch"
+		"start": "node --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"ts-node/esm\", pathToFileURL(\"./\"));' src/index.ts",
+		"dev": "nodemon --exec ts-node src/index.ts",
+		"check-types": "tsc --noEmit",
+		"test": "jest",
+		"build": "tsup --format esm --dts"
 	},
 	"peerDependencies": {
 		"whatwg-url": "7.1.0"

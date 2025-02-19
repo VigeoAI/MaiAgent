@@ -1,15 +1,5 @@
 {
   "name": "maiagent",
-  "scripts": {
-    "format": "biome format --write .",
-    "lint": "biome lint .",
-    "check": "biome check --apply .",
-    "preinstall": "npx only-allow pnpm",
-    "build": "turbo run build",
-    "build-docker": "turbo run build",
-    "start": "pnpm start",
-    "dev": "bash ./scripts/dev.sh"
-  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "18.6.1",
@@ -26,6 +16,7 @@
   },
   "dependencies": {
     "@vitest/eslint-plugin": "1.0.1",
+    "openai": "^4.85.1",
     "pnpm": "9.15.0",
     "sharp": "0.33.5"
   },

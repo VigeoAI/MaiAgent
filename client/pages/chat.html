@@ -17,22 +17,73 @@
             <!-- Messages will be appended here -->
         </div>
         <div class="chat-footer">
-            <input type="text" id="chatInput" placeholder="Ask questions or open applications..." />
-            <button id="sendMessageBtn">Send</button>
+            <input type="text" id="chatInput" placeholder="Ask questions or open apps..." />
+            <button id="sendMessageBtn">K-line AI</button>
         </div>
     </div>
 
+    <script src="../src/service.js"></script>
     <script>
-        document.getElementById('sendMessageBtn')?.addEventListener('click', sendMessage);
+        document.getElementById('sendMessageBtn')?.addEventListener('click', inferPicture);
         document.getElementById('closeBtn')?.addEventListener('click', closeChat);
 
-        function sendMessage() {
+        async function inferPicture() {
+            try {
+                const image = await window.electronAPI.takeScreenshot();
+                //console.log(image)
+
+                const reqParam = {
+                    imagebase64: image,
+                };
+                const resp = await agentRequest(reqParam, VISION_PATH);
+                if (resp) {
+                    try {
+                        //const msg = JSON.parse(resp);
+                        appendMessage(resp.reason);
+                    }
+                    catch (error) {
+                        appendMessage(JSON.stringify(resp));
+                    }
+                }
+                else {
+                    appendMessage("Error " + resp);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        async function sendMessage() {
             //const inputField = document.getElementById('chatInput') as HTMLInputElement;
             const inputField = document.getElementById('chatInput');
             const messageText = inputField.value.trim();
             if (messageText) {
                 appendMessage(messageText);
                 inputField.value = '';
+            }
+
+            // API
+            const reqParam = {
+                text: messageText,
+            };
+            try {
+                const resp = await agentRequest(reqParam, CHAT_PATH);
+                //console.log(resp);
+                if (resp && resp.success && resp.data) {
+                    try {
+                        const chatMsg = JSON.parse(resp.data.response);
+                        appendMessage(chatMsg.text);
+                    }
+                    catch (error) {
+                        appendMessage(resp.data.response);
+                    }
+                }
+                else {
+                    appendMessage("Error " + resp.message);
+                }
+                //appendMessage(JSON.stringify(resp));
+            } catch (error) {
+                console.log(error);
             }
         }
 
@@ -53,6 +104,7 @@
             window.electronAPI.navigate('index');
         }
         appendMessage("Processing, please wait a few seconds......");
+        inferPicture();
 
     </script>
 </body>
