@@ -1,7 +1,7 @@
-# MaiAgent
+# MaiPet of MaiAgent
 
 <div align="center">
-  <img src="./client/assets/logo.png" alt="Agent Logo" width="80%" />
+  <img src="./client/assets/logo.png" alt="Agent Logo" width="50%" />
 </div>
 
 ## 🚩 Overview
@@ -12,6 +12,7 @@ MaiPet is the Mai Agent Desktop Pet.
 ### Features
 - K-line capture in realtime;
 - K-line related data/event scrap in realtime;
+
 
 ### Architecture
 
@@ -28,6 +29,8 @@ MaiPet is the Mai Agent Desktop Pet.
 
 
 ## 🚀 Quick Start
+
+The frontend code locates at the client/ folder, and the backend code locates at the agent/ folder.
 
 ### Start Agent (Backend)
 
