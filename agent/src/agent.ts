@@ -73,7 +73,7 @@ export async function chatWithChain(msg: string): Promise<string> {
         return response;
     } catch (error: any) {
         console.error('ChatWithChain Error:', error);
-        throw new Error(`ChatWithChain Error: ${error.message}`);
+        return response;
     }
 }
 
@@ -103,12 +103,24 @@ export async function chatWithAI(msg: string): Promise<string> {
 // native openai
 export async function visionPicture(base64Image: string): Promise<string> {
   // console.log("chatWithOpenAI base64Image: " + base64Image);
-  const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-  });
-
+  let aiModel = "";
+  let client = null;
+  if(process.env.KIMI_model) {
+    aiModel = "moonshot-v1-8k-vision-preview";
+    client = new OpenAI({
+      apiKey: process.env.KIMI_APIKEY,
+      baseURL: process.env.KIMI_BASEURL
+    });
+  } else {
+    aiModel = "gpt-4o-mini";
+    client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+  }
+   
+  
   const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: aiModel,
     messages: [{
       role: "user",
       content: [
