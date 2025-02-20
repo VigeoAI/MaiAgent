@@ -43,15 +43,18 @@ The name "MAI Agent" serves a dual purpose: it stands for "My AI Agent". MAI Age
   <img src="./docs/desktop-avatar.png" alt="Avatar" width="80%" />
 </div>
 
+
 - **K-line Analysis & Prediction:** 
 <div align="center">
   <img src="./docs/aptos-analysis.png" alt="K-line" width="80%" />
 </div>
 
+
 - **Chat Window:** 
 <div align="center">
   <img src="./docs/chat-window.png" alt="Chat" width="80%" />
 </div>
+
 
 
 ### Readmap
@@ -65,7 +68,7 @@ The name "MAI Agent" serves a dual purpose: it stands for "My AI Agent". MAI Age
 
 ## 🤖 Demo
 - [Demo1 (Feature Demo)](https://youtu.be/NkZSDCQzSbY)
-- [Demo2 (Introduction)](https://youtu.be/NkZSDCQzSbY)
+- [Demo2 (Introduction)](https://youtu.be/a6Cnf9bLCk8)
 
 ## 🚀 Quick Start
 
