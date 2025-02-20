@@ -16,6 +16,9 @@ node-compile-cache
 dist/
 
 cookies.json
+package-lock.json
+client/package-lock.json
+agent/package-lock.json
 
 *.gguf
 *.onnx
