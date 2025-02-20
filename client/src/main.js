@@ -87,8 +87,15 @@ ipcMain.on('navigate', (event, page) => {
 //
 ipcMain.handle('take-screenshot', async () => {
     mainWindow.hide();
-    const sources = await desktopCapturer.getSources({ types: ['screen'] });
+    const sources = await desktopCapturer.getSources({
+        types: ['screen'],
+        thumbnailSize: {
+            width: 1920,
+            height: 1080,
+        }
+    });
     mainWindow.show();
+    //console.log(sources);
     const source = sources[0]; // first screen
     return source.thumbnail.toDataURL(); // Image Data URL
 });
